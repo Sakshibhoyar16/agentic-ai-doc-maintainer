@@ -1,6 +1,4 @@
-````python id="4jam4"
-# main.py
-
+```python
 from crewai import Crew, Task, Process, LLM
 
 from agents.repo_monitor import (
@@ -107,9 +105,7 @@ task3 = Task(
 
     **Example:**
 
-    ```python
     result = function_name(param1, param2)
-    ```
     """,
 
     expected_output="""
@@ -164,4 +160,4 @@ print("=" * 60)
 print(save_result)
 
 print("\nWorkflow completed successfully.\n")
-````
+```
