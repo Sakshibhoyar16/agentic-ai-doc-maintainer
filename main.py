@@ -1,15 +1,23 @@
+````python id="4jam4"
 # main.py
 
 from crewai import Crew, Task, Process, LLM
-from agents.repo_monitor import repo_monitor_agent, detect_changes_tool
-from agents.code_analyzer import code_analyzer_agent, analyze_file_tool
+
+from agents.repo_monitor import (
+    repo_monitor_agent,
+    detect_changes_tool
+)
+
+from agents.code_analyzer import (
+    code_analyzer_agent,
+    analyze_file_tool
+)
 
 from agents.doc_updater import (
     doc_updater_agent,
     save_documentation_and_push
 )
 
-from tools.git_tools import get_changed_files
 from tools.ast_tools import extract_code_structure
 
 from dotenv import load_dotenv
@@ -18,13 +26,19 @@ import os
 
 load_dotenv()
 
+# ---------------------------------------------------
 # LLM Configuration
+# ---------------------------------------------------
+
 groq_llm = LLM(
     model="groq/llama-3.3-70b-versatile",
     api_key=os.getenv("GROQ_API_KEY")
 )
 
+# ---------------------------------------------------
 # Repository Path
+# ---------------------------------------------------
+
 REPO_PATH = os.getenv(
     "TARGET_REPO_PATH",
     "./agentic-test-repo"
@@ -35,45 +49,33 @@ print("   Automated Documentation Maintainer")
 print("=" * 60)
 
 # ---------------------------------------------------
-# STEP 1 — Detect Changed Files
+# STEP 1 — Scan ALL Python Files
 # ---------------------------------------------------
 
-print("\n[Step 1] Detecting changes in repository...\n")
-
-changes = get_changed_files(REPO_PATH)
-
-print(f"Changes found:\n{changes}")
-
-# ---------------------------------------------------
-# STEP 2 — Analyze Changed Python Files
-# ---------------------------------------------------
-
-print("\n[Step 2] Analyzing changed Python files...\n")
+print("\n[Step 1] Scanning all Python files...\n")
 
 analysis_results = []
 
-for file_info in changes.get("changed_files", []):
+for root, dirs, files in os.walk(REPO_PATH):
 
-    file_path = os.path.join(
-        REPO_PATH,
-        file_info["file"]
-    )
+    for file in files:
 
-    # Ensure file exists
-    if os.path.exists(file_path):
+        if file.endswith(".py"):
 
-        result = extract_code_structure(file_path)
+            file_path = os.path.join(root, file)
 
-        analysis_results.append(result)
+            result = extract_code_structure(file_path)
 
-        print(f"Analyzed file: {file_info['file']}")
+            analysis_results.append(result)
+
+            print(f"Analyzed file: {file}")
+
+print("\nCode analysis completed successfully.\n")
 
 analysis_summary = str(analysis_results)
 
-print("\nAnalysis completed successfully.\n")
-
 # ---------------------------------------------------
-# STEP 3 — Generate Documentation Using CrewAI
+# STEP 2 — Generate Documentation Using CrewAI
 # ---------------------------------------------------
 
 task3 = Task(
@@ -134,25 +136,17 @@ crew = Crew(
     llm=groq_llm
 )
 
-print("\n[Step 3] Generating documentation with AI...\n")
+print("\n[Step 2] Generating documentation with AI...\n")
 
 result = crew.kickoff()
-
-# ---------------------------------------------------
-# STEP 4 — Print Final Documentation
-# ---------------------------------------------------
-
-print("\n" + "=" * 60)
-print("   FINAL DOCUMENTATION OUTPUT")
-print("=" * 60)
 
 print("\nDocumentation generated successfully.\n")
 
 # ---------------------------------------------------
-# STEP 5 — Save Documentation + Push To GitHub
+# STEP 3 — Save Documentation + Push To GitHub
 # ---------------------------------------------------
 
-print("\n[Step 4] Saving documentation and pushing to GitHub...\n")
+print("\n[Step 3] Saving documentation and pushing to GitHub...\n")
 
 save_result = save_documentation_and_push(
     documentation_text=str(result),
@@ -160,7 +154,7 @@ save_result = save_documentation_and_push(
 )
 
 # ---------------------------------------------------
-# STEP 6 — Final Status
+# STEP 4 — Final Status
 # ---------------------------------------------------
 
 print("\n" + "=" * 60)
@@ -170,3 +164,4 @@ print("=" * 60)
 print(save_result)
 
 print("\nWorkflow completed successfully.\n")
+````
