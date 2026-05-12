@@ -1,9 +1,10 @@
 name: Automated Documentation Updater
 
 on:
-  push:
-    branches:
-      - main
+  schedule:
+    - cron: "*/5 * * * *"
+
+  workflow_dispatch:
 
 jobs:
 
@@ -50,7 +51,7 @@ jobs:
         run: |
           python main.py
 
-        # Step 7 - Commit and Push Documentation
+      # Step 7 - Commit and Push Documentation
       - name: Commit and Push Documentation
 
         env:
