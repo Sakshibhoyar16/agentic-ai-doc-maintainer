@@ -50,11 +50,19 @@ jobs:
         run: |
           python main.py
 
-      # Step 7 - Commit and Push Documentation
+        # Step 7 - Commit and Push Documentation
       - name: Commit and Push Documentation
+
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
         run: |
           cd agentic-test-repo
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/Sakshibhoyar16/agentic-test-repo.git
 
           git add .
 
