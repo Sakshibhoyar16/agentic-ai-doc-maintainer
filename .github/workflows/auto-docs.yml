@@ -2,7 +2,7 @@ name: Automated Documentation Updater
 
 on:
   schedule:
-    - cron: "*/5 * * * *"
+    - cron: "*/2 * * * *"
 
   workflow_dispatch:
 
