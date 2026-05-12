@@ -1,0 +1,31 @@
+name: 'Agentic AI Documentation Maintainer'
+description: 'Automatically generates Markdown documentation for any Python repository using CrewAI and Groq LLM'
+author: 'Sakshibhoyar16'
+
+inputs:
+  groq_api_key:
+    description: 'Groq API key for AI documentation generation'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      shell: bash
+      run: pip install -r ${{ github.action_path }}/requirements.txt
+
+    - name: Run AI Documentation System
+      shell: bash
+      env:
+        GROQ_API_KEY: ${{ inputs.groq_api_key }}
+        TARGET_REPO_PATH: ${{ github.workspace }}
+      run: python ${{ github.action_path }}/main.py
+
+branding:
+  icon: 'book-open'
+  color: 'blue'
