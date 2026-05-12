@@ -1,4 +1,3 @@
-```python
 from crewai import Crew, Task, Process, LLM
 
 from agents.repo_monitor import (
@@ -160,4 +159,3 @@ print("=" * 60)
 print(save_result)
 
 print("\nWorkflow completed successfully.\n")
-```
