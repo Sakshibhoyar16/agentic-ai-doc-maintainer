@@ -1,0 +1,4 @@
+crewai
+gitpython
+python-dotenv
+groq
