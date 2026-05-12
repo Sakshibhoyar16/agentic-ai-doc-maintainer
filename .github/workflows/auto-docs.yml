@@ -13,7 +13,7 @@ jobs:
 
     steps:
 
-      # Step 1 - Download repository
+      # Step 1 - Download AI repository
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -35,7 +35,12 @@ jobs:
           git config --global user.name "AI Documentation Bot"
           git config --global user.email "bot@example.com"
 
-      # Step 5 - Run AI system
+      # Step 5 - Clone target repository
+      - name: Clone Target Repository
+        run: |
+          git clone https://github.com/Sakshibhoyar16/agentic-test-repo.git
+
+      # Step 6 - Run AI Documentation Maintainer
       - name: Run AI Documentation Maintainer
 
         env:
@@ -45,10 +50,14 @@ jobs:
         run: |
           python main.py
 
-      # Step 6 - Commit and Push Changes
+      # Step 7 - Commit and Push Documentation
       - name: Commit and Push Documentation
 
         run: |
+          cd agentic-test-repo
+
           git add .
+
           git commit -m "AI updated documentation" || echo "No changes to commit"
+
           git push
