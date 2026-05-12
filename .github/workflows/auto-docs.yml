@@ -54,7 +54,7 @@ jobs:
       - name: Commit and Push Documentation
 
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
 
         run: |
           cd agentic-test-repo
