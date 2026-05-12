@@ -1,72 +1,72 @@
 name: Automated Documentation Updater
 
 on:
+  # Trigger 1: When someone pushes code to agentic-test-repo via UI or local push
+  # This uses repository_dispatch — target repo will call this workflow
+  repository_dispatch:
+    types: [target-repo-updated]
+
+  # Trigger 2: Poll every 2 minutes as backup (catches UI commits too)
   schedule:
     - cron: "*/2 * * * *"
 
+  # Trigger 3: Manual trigger from GitHub Actions UI
   workflow_dispatch:
 
+  # Trigger 4: When AI repo itself is updated
+  push:
+    branches:
+      - main
+
 jobs:
-
   update-docs:
-
     runs-on: ubuntu-latest
 
     steps:
-
-      # Step 1 - Download AI repository
-      - name: Checkout repository
+      # Step 1 — Download AI repository
+      - name: Checkout AI repository
         uses: actions/checkout@v4
 
-      # Step 2 - Install Python
+      # Step 2 — Install Python 3.11
       - name: Set up Python
         uses: actions/setup-python@v5
-
         with:
           python-version: '3.11'
 
-      # Step 3 - Install dependencies
+      # Step 3 — Install all dependencies
       - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
+        run: pip install -r requirements.txt
 
-      # Step 4 - Configure Git
+      # Step 4 — Configure Git globally
       - name: Configure Git
         run: |
           git config --global user.name "AI Documentation Bot"
           git config --global user.email "bot@example.com"
 
-      # Step 5 - Clone target repository
-      - name: Clone Target Repository
+      # Step 5 — Clone target repo using PAT so we can push back later
+      # We use PAT_TOKEN in the URL so git push works without extra auth
+      - name: Clone target repository
+        env:
+          PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
         run: |
-          git clone https://github.com/Sakshibhoyar16/agentic-test-repo.git
+          git clone https://x-access-token:${PAT_TOKEN}@github.com/Sakshibhoyar16/agentic-test-repo.git ./agentic-test-repo
 
-      # Step 6 - Run AI Documentation Maintainer
+      # Step 6 — Run the AI documentation system
       - name: Run AI Documentation Maintainer
-
         env:
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
           TARGET_REPO_PATH: ./agentic-test-repo
+        run: python main.py
 
-        run: |
-          python main.py
-
-      # Step 7 - Commit and Push Documentation
+      # Step 7 — Commit and push updated docs back to target repo
       - name: Commit and Push Documentation
-
         env:
           PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
-
         run: |
           cd agentic-test-repo
-
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
+          git config user.name "AI Documentation Bot"
+          git config user.email "bot@example.com"
           git remote set-url origin https://x-access-token:${PAT_TOKEN}@github.com/Sakshibhoyar16/agentic-test-repo.git
-
-          git add .
-
-          git commit -m "AI updated documentation" || echo "No changes to commit"
-
+          git add DOCUMENTATION.md README.md
+          git diff --staged --quiet && echo "No changes to commit" || git commit -m "docs: auto-updated by AI [skip ci]"
           git push
