@@ -1,11 +1,8 @@
-# main.py
-
 from crewai import Crew, Task, Process, LLM
 from agents.doc_updater import doc_updater_agent
 from tools.ast_tools import extract_code_structure
 from dotenv import load_dotenv
 import os
-import subprocess
 
 load_dotenv()
 
@@ -34,7 +31,6 @@ print("\n[Step 1] Scanning all Python files...\n")
 analysis_results = []
 
 for root, dirs, files in os.walk(REPO_PATH):
-    # Skip hidden folders like .git
     dirs[:] = [d for d in dirs if not d.startswith('.')]
 
     for file in files:
@@ -120,38 +116,25 @@ print("\nDocumentation generated successfully.\n")
 # ---------------------------------------------------
 print("\n[Step 3] Saving documentation files...\n")
 
-# Save DOCUMENTATION.md
+# Save DOCUMENTATION.md with full AI generated docs
 doc_path = os.path.join(REPO_PATH, "DOCUMENTATION.md")
 with open(doc_path, 'w', encoding='utf-8') as f:
     f.write(documentation)
 print("DOCUMENTATION.md saved.")
 
-# Save README.md
+# Save README.md — includes actual AI documentation
 readme_path = os.path.join(REPO_PATH, "README.md")
-readme_content = """# agentic-test-repo
+readme_content = f"""# agentic-test-repo
 
-This repository is automatically documented by the
-[Agentic AI Documentation Maintainer](https://github.com/Sakshibhoyar16/agentic-ai-doc-maintainer).
+Auto-documented by [Agentic AI Documentation Maintainer](https://github.com/Sakshibhoyar16/agentic-ai-doc-maintainer).
 
-## What is this?
+---
 
-Every time code is pushed to this repository, an AI system
-automatically reads the Python files, understands the functions,
-and updates the documentation — with zero human effort.
+{documentation}
 
-## Documentation
+---
 
-See [DOCUMENTATION.md](./DOCUMENTATION.md) for full API documentation.
-
-## How it works
-
-1. Developer pushes new code
-2. AI system detects the change
-3. AST parser reads all Python functions
-4. Groq LLM writes the documentation
-5. DOCUMENTATION.md is automatically updated
-
-*Last updated automatically by AI Documentation Bot.*
+*Last updated automatically by AI on every code push.*
 """
 with open(readme_path, 'w', encoding='utf-8') as f:
     f.write(readme_content)
