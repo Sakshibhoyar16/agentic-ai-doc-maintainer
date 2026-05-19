@@ -1,5 +1,5 @@
-crewai
+crewai==0.80.0
+crewai-tools==0.14.0
 gitpython
 python-dotenv
-groq
-litellm
+litellm==1.55.0
